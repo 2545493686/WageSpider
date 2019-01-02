@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using LanQ.SpiderLibrary;
 using LanQ.HttpLibrary;
 using LanQ;
@@ -45,29 +44,46 @@ namespace WageSpider
             //获取城市列表
             //ChinnahrSpider.GetCityUrls(PATH_CITY_CHINAHR);
 
-            //从文件读取城市列表
+            File.Delete(PATH_DATA_JAVA_CHINAHR);
+            File.Delete(PATH_DATA_PHP_CHINAHR);
+            File.Delete(PATH_DATA_UNITY_CHINAHR);
 
-            WageSpider spider = new ChinnahrSpider(PathAddTime(PATH_DATA_HTML_CHINAHR));
+            //WageSpider htmlSpider = new ChinnahrSpider(PathAddTime(PATH_DATA_HTML_CHINAHR));
+            //WageSpider javaSpider = new ChinnahrSpider(PATH_DATA_JAVA_CHINAHR);
+            WageSpider phpSpider = new ChinnahrSpider(PATH_DATA_PHP_CHINAHR);
+            WageSpider unitySpider = new ChinnahrSpider(PATH_DATA_UNITY_CHINAHR);
+            //WageSpider cppSpider = new ChinnahrSpider(PathAddTime(PATH_DATA_CPP_CHINAHR));
+            WageSpider androidSpider = new ChinnahrSpider(PathAddTime(PATH_DATA_ANDROID_CHINAHR));
 
             //spider.GetUrlsToFile(PATH_CITY_CHINAHR); //获取城市列表到文件
-            spider.AddUrlsFromFile(PATH_CITY_CHINAHR, HTML_SUFFIX); //添加要跑的url
+            //htmlSpider.AddUrlsFromFile(PATH_CITY_CHINAHR, HTML_SUFFIX); //添加要跑的url
+            //javaSpider.AddUrlsFromFile(PATH_CITY_CHINAHR, JAVA_SUFFIX); //添加要跑的url
+            phpSpider.AddUrlsFromFile(PATH_CITY_CHINAHR, PHP_SUFFIX); //添加要跑的url
+            unitySpider.AddUrlsFromFile(PATH_CITY_CHINAHR, UNITY_SUFFIX); //添加要跑的url
+            //cppSpider.AddUrlsFromFile(PATH_CITY_CHINAHR, CPP_SUFFIX); //添加要跑的url
+            androidSpider.AddUrlsFromFile(PATH_CITY_CHINAHR, ANDROID_SUFFIX); //添加要跑的url
 
             #region 正则匹配规则和裁剪
             string[] patternes_chainahr = //正则规则
             {
                 "\"job-company\" title='.+?'", //公司
                 "\"job-salary\"> .+?</li", //薪资
-                "\"job-address\"> .+?<span" //联系方式
+                "class=\"job-name\" title=\".+?\"", //标题
+                "</li></ul><p class=\"l3\">.+?</p><ul class=\"", //内容
+                "<li class=\"job-address\">.+?<span"
+
             };
             string[] startTrim_chainahr = //前面剔除文本
             {
                 "\"job-company\" title='",
                 "\"job-salary\"> ",
-                "\"job-address\"> "
+                "class=\"job-name\" title=\"",
+                "</li></ul><p class=\"l3\">",
+                "<li class=\"job-address\">"
             };
             string[] endTrim_chainahr =
             {
-                "'", "</li", "<span"
+                "'", "</li", "\"", "</p><ul class=\"", "<span"
             };
             #endregion
 
@@ -75,8 +91,12 @@ namespace WageSpider
             Pattern[] pattern_chainahr = GetPattern(patternes_chainahr, startTrim_chainahr, endTrim_chainahr);
 
             //运行爬虫
-            spider.Run(pattern_chainahr);
-
+            //htmlSpider.Run(pattern_chainahr);
+            phpSpider.Run(pattern_chainahr);
+            unitySpider.Run(pattern_chainahr);
+            //javaSpider.Run(pattern_chainahr);
+            //cppSpider.Run(pattern_chainahr);
+            androidSpider.Run(pattern_chainahr);
 #if false //对文字进行细分析，格式化
             string[] dataPathes =
             {
@@ -139,8 +159,8 @@ namespace WageSpider
             if (patternes.Length != startTrim.Length || patternes.Length != endTrim.Length)
                 throw new Exception("INPUT ERROR, DIFFERENT ARRAY LENGTH!");
 
-            Pattern[] ret = new Pattern[3];
-            for (int i = 0; i < 3; i++)
+            Pattern[] ret = new Pattern[patternes.Length];
+            for (int i = 0; i < patternes.Length; i++)
             {
                 ret[i] = new Pattern
                 {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WageSpider
@@ -19,7 +20,7 @@ namespace WageSpider
         public override void Run(Pattern[] patterns) //执行爬虫
         {
             Spider spider = new Spider(UrlList.ToArray(), DataFile);
-            spider.GetText(patterns);
+            spider.GetText(patterns, 5000);
         }
 
         public override void AddUrlsFromFile(string path, params string[] additional)
@@ -72,7 +73,7 @@ namespace WageSpider
 
         private static int GetMaxNumber(string url)
         {
-            string source = Http.Get(url);
+            string source = Http.Get(url, 5000);
             if (source == string.Empty)
                 return 0;
 
